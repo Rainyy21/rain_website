@@ -1,0 +1,46 @@
+{
+  "profile": {
+    "handle": "Rainyy",
+    "taglines": [
+      "Dev, tinkerer, night owl.",
+      "Pull up a chair by the window.",
+      "Self-hosting everything I can.",
+      "Stay a while, it's cozy in the rain.",
+      "Rain on the window, friends inside.",
+      "Follow the drizzle, find your people."
+    ]
+  },
+  "featured": {
+    "id": "den",
+    "label": "The Den",
+    "sub": "My self-hosted furry base",
+    "href": "https://example.com",
+    "icon": "🏠"
+  },
+  "links": [
+    {
+      "id": "discord",
+      "label": "Discord",
+      "href": "https://discord.com/users/532010887024869386",
+      "icon": "/discord-icon-svgrepo-com.svg"
+    },
+    {
+      "id": "x",
+      "label": "Twitter / X",
+      "href": "https://x.com/raindrop_rain12",
+      "icon": "/x-symbol-svgrepo-com.svg"
+    },
+    {
+      "id": "bsky",
+      "label": "Bluesky",
+      "href": "https://bsky.app/profile/rain12.bsky.social",
+      "icon": "/bluesky.svg"
+    },
+    {
+      "id": "tg",
+      "label": "Telegram",
+      "href": "https://t.me/RainyRain12",
+      "icon": "/telegram-svgrepo-com.svg"
+    }
+  ]
+}
