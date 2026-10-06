@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: linkcheck
+  namespace: rain-hub
+spec:
+  schedule: "0 4 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: linkcheck
+              image: rain-hub-tracker:latest
+              imagePullPolicy: Never
+              command: ["python", "check_links.py"]
+              envFrom:
+                - secretRef:
+                    name: rain-hub-secrets
