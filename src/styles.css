@@ -8,7 +8,7 @@ canvas.rain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-
 .flash{position:fixed;inset:0;background:#cfe3ff;opacity:0;pointer-events:none;z-index:1}
 .flash.on{animation:fl .6s ease-out}
 @keyframes fl{0%{opacity:0}8%{opacity:.3}20%{opacity:.04}32%{opacity:.2}100%{opacity:0}}
-main{position:relative;z-index:2;max-width:440px;margin:0 auto;padding:26px 20px 28px;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+main{position:relative;z-index:2;max-width:440px;margin:0 auto;padding:26px 20px 28px;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .mascot{filter:drop-shadow(0 0 16px rgba(95,209,200,.4))}
 .umb{transform-origin:70px 54px;animation:bob 4s ease-in-out infinite}
 .tail{transform-origin:92px 108px;animation:tail 2.6s ease-in-out infinite}
@@ -44,7 +44,7 @@ h1{font:600 28px 'Fredoka',system-ui,sans-serif;margin:8px 0 4px;letter-spacing:
 @keyframes rp{to{transform:scale(1);opacity:0}}
 .sp{position:fixed;width:5px;height:5px;margin:-2px;border-radius:50%;background:rgba(200,230,255,.85);pointer-events:none;z-index:9;animation:sp .55s ease-out forwards}
 @keyframes sp{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
-footer{margin-top:auto;padding-top:26px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+footer{padding-top:26px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .tog{min-height:44px;padding:0 15px;border-radius:999px;border:1px solid var(--edge);background:rgba(14,26,46,.55);color:var(--dim);font:500 13px 'DM Sans',system-ui,sans-serif;cursor:pointer}
 .tog[aria-pressed=true]{color:var(--teal);border-color:rgba(95,209,200,.55)}
 @media (prefers-reduced-motion:reduce){.flash.on,.ripple,.tag{animation:none}.mascot *{animation:none!important}}
