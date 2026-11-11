@@ -1,10 +1,24 @@
 services:
+  # Cloudflare Tunnel: makes an outbound connection to Cloudflare, so no ports
+  # need to be opened or forwarded. Create the tunnel in the Zero Trust
+  # dashboard (Networks -> Tunnels), copy its token into CLOUDFLARE_TUNNEL_TOKEN,
+  # and add a Public Hostname: <your domain>  ->  HTTP  ->  web:80
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?set CLOUDFLARE_TUNNEL_TOKEN in .env}
+    depends_on: [web]
+
   web:
     build: .
     restart: unless-stopped
-    ports: ["80:80", "443:443"]
+    # No published ports: only cloudflared reaches Caddy, over the compose network.
+    # Cloudflare terminates TLS, so Caddy serves plain HTTP. ":80" disables
+    # Caddy's automatic HTTPS (its ACME challenge can't succeed behind a tunnel).
     environment:
-      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
     volumes: [caddy_data:/data, caddy_config:/config]
     depends_on: [tracker]
 
@@ -12,52 +26,20 @@ services:
     build: { context: ., dockerfile: tracker/Dockerfile }
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://tracker_rw:${TRACKER_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://tracker_rw:${TRACKER_PASSWORD}@${DB_HOST:-db}:5432/${POSTGRES_DB}
       TRACKER_SECRET: ${TRACKER_SECRET}
       SITE_HOST: ${SITE_HOST}
     volumes: ["./geoip:/data:ro"]
-    depends_on: { db: { condition: service_healthy } }
+    depends_on: []
 
   linkcheck:
     build: { context: ., dockerfile: tracker/Dockerfile }
     restart: unless-stopped
     command: ["sh", "-c", "while true; do python check_links.py; sleep 86400; done"]
     environment:
-      DATABASE_URL: postgresql://tracker_rw:${TRACKER_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://tracker_rw:${TRACKER_PASSWORD}@${DB_HOST:-db}:5432/${POSTGRES_DB}
       KUMA_PUSH_URL: ${KUMA_LINKS_PUSH_URL:-}
-    depends_on: { db: { condition: service_healthy } }
-
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      TRACKER_PASSWORD: ${TRACKER_PASSWORD}
-      STATS_RO_PASSWORD: ${STATS_RO_PASSWORD}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d:ro
-    # Published only on the WireGuard address, so the read-only user is reachable over WireGuard
-    ports: ["${PG_BIND:-127.0.0.1:5432}:5432"]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      retries: 10
-
-  backup:
-    build: { context: ., dockerfile: backup/Dockerfile }
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      BACKUP_TARGET: ${BACKUP_TARGET}
-      BACKUP_PORT: ${BACKUP_PORT:-22}
-      KUMA_BACKUP_PUSH_URL: ${KUMA_BACKUP_PUSH_URL:-}
-    volumes: ["./backup-ssh:/ssh:ro"]
-    depends_on: { db: { condition: service_healthy } }
+    depends_on: []
 
   kuma:
     image: louislam/uptime-kuma:1
@@ -65,4 +47,4 @@ services:
     ports: ["${KUMA_BIND:-127.0.0.1:3001}:3001"]
     volumes: [kuma_data:/app/data]
 
-volumes: { pgdata: {}, caddy_data: {}, caddy_config: {}, kuma_data: {} }
+volumes: { caddy_data: {}, caddy_config: {}, kuma_data: {} }
